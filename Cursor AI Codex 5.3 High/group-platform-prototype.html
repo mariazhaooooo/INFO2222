@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Squad — Group Assignment Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #faf9f7;
+      --bg-card: #ffffff;
+      --text-primary: #2d3436;
+      --text-secondary: #636e72;
+      --accent-coral: #ff6b6b;
+      --accent-mint: #55efc4;
+      --accent-sky: #74b9ff;
+      --border-soft: #e8e6e3;
+      --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      text-align: center;
+      padding: 32px 0;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      color: var(--text-secondary);
+      margin-top: 8px;
+      font-size: 1rem;
+    }
+
+    /* Section styling */
+    section {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 24px;
+      margin-bottom: 24px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    section:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    section h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section h2::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, var(--accent-coral), var(--accent-sky));
+      border-radius: 2px;
+    }
+
+    /* Deadline Pressure Visualiser */
+    .deadline-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .countdown-display {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .progress-ring-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+
+    .progress-ring {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .progress-ring-bg {
+      fill: none;
+      stroke: var(--border-soft);
+      stroke-width: 10;
+    }
+
+    .progress-ring-fill {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 0;
+      transition: stroke 0.5s ease, stroke-dashoffset 0.5s ease;
+    }
+
+    .progress-ring-fill.green { stroke: var(--accent-mint); }
+    .progress-ring-fill.yellow { stroke: #ffeaa7; }
+    .progress-ring-fill.red { stroke: var(--accent-coral); }
+
+    .countdown-text {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .countdown-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .deadline-reminder {
+      background: linear-gradient(135deg, #fff5f5 0%, #fff9e6 100%);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      display: none;
+      animation: pulse-reminder 2s ease-in-out infinite;
+    }
+
+    .deadline-reminder.visible {
+      display: block;
+    }
+
+    @keyframes pulse-reminder {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.85; }
+    }
+
+    /* Sprint Board */
+    .sprint-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      min-height: 280px;
+    }
+
+    .sprint-column {
+      background: var(--bg-base);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      min-height: 240px;
+    }
+
+    .sprint-column h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .sprint-column.todo h3 { color: var(--accent-sky); }
+    .sprint-column.progress h3 { color: #fdcb6e; }
+    .sprint-column.done h3 { color: var(--accent-mint); }
+
+    .task-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      margin-bottom: 10px;
+      cursor: grab;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border-left: 4px solid var(--accent-sky);
+    }
+
+    .task-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .task-card:active {
+      cursor: grabbing;
+    }
+
+    .task-card.dragging {
+      opacity: 0.6;
+      transform: scale(0.98);
+    }
+
+    .task-card.priority-high { border-left-color: var(--accent-coral); }
+    .task-card.priority-medium { border-left-color: #fdcb6e; }
+    .task-card.priority-low { border-left-color: var(--accent-mint); }
+
+    .task-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .task-meta {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .task-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .priority-badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 6px;
+      display: inline-block;
+    }
+
+    .priority-badge.high { background: rgba(255, 107, 107, 0.2); color: #c0392b; }
+    .priority-badge.medium { background: rgba(253, 203, 110, 0.3); color: #b8860b; }
+    .priority-badge.low { background: rgba(85, 239, 196, 0.3); color: #00b894; }
+
+    .sprint-column.drag-over {
+      background: rgba(116, 185, 255, 0.15);
+      border: 2px dashed var(--accent-sky);
+    }
+
+    /* Chat Section */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .chat-messages {
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 16px;
+      background: var(--bg-base);
+      border-radius: var(--radius-sm);
+    }
+
+    .chat-message {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-sky), var(--accent-mint));
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .chat-content {
+      flex: 1;
+    }
+
+    .chat-sender {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .chat-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .chat-time {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      opacity: 0.8;
+    }
+
+    .chat-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-coral), #ee5a5a);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--accent-sky);
+      color: white;
+    }
+
+    .summary-panel {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: linear-gradient(135deg, #f0f9ff 0%, #f0fff4 100%);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(116, 185, 255, 0.3);
+    }
+
+    .summary-panel.visible {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .summary-panel h4 {
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .summary-panel ul {
+      margin-left: 20px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .summary-panel li {
+      margin-bottom: 6px;
+    }
+
+    .action-items {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .action-items strong {
+      color: var(--accent-coral);
+      font-size: 0.85rem;
+    }
+
+    /* File Hosting */
+    .file-section {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .file-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .file-upload-zone {
+      border: 2px dashed var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--bg-base);
+    }
+
+    .file-upload-zone:hover,
+    .file-upload-zone.drag-over {
+      border-color: var(--accent-sky);
+      background: rgba(116, 185, 255, 0.08);
+    }
+
+    .file-upload-zone input {
+      display: none;
+    }
+
+    .file-upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+      opacity: 0.6;
+    }
+
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--bg-base);
+      border-radius: var(--radius-sm);
+      transition: background 0.2s ease;
+    }
+
+    .file-item:hover {
+      background: rgba(116, 185, 255, 0.08);
+    }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .file-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-sky);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .file-details {
+      font-size: 0.9rem;
+    }
+
+    .file-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .file-meta {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* Contribution Tracker */
+    .contribution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .member-card {
+      background: var(--bg-base);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      transition: transform 0.2s ease;
+    }
+
+    .member-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .member-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .member-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    .member-progress-bar {
+      height: 8px;
+      background: var(--border-soft);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .member-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-mint), var(--accent-sky));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .member-tasks {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .member-task {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+    }
+
+    .member-task:hover {
+      background: rgba(116, 185, 255, 0.15);
+    }
+
+    .member-task .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .member-task .status-dot.not-started { background: var(--border-soft); }
+    .member-task .status-dot.in-progress { background: #fdcb6e; }
+    .member-task .status-dot.completed { background: var(--accent-mint); }
+
+    .task-card.just-clicked, .member-task.just-clicked {
+      animation: clickPop 0.4s ease;
+    }
+
+    @keyframes clickPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    .task-card.animate-in {
+      animation: cardSlideIn 0.35s ease;
+    }
+
+    @keyframes cardSlideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .member-task .task-name {
+      flex: 1;
+      margin: 0 10px;
+      color: var(--text-primary);
+    }
+
+    .member-task .status-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      min-width: 70px;
+    }
+
+    /* Two-column layout for main content */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sprint-board {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Study Squad</h1>
+      <p>Your friendly group assignment hub — stay organised, stay connected</p>
+    </header>
+
+    <!-- Deadline Pressure Visualiser -->
+    <section id="deadline-section">
+      <h2>Deadline Pressure Visualiser</h2>
+      <div class="deadline-section">
+        <div class="countdown-display">
+          <div class="progress-ring-container">
+            <svg class="progress-ring" viewBox="0 0 100 100">
+              <circle class="progress-ring-bg" cx="50" cy="50" r="45"/>
+              <circle id="progress-ring-fill" class="progress-ring-fill" cx="50" cy="50" r="45"/>
+            </svg>
+          </div>
+          <div>
+            <div id="countdown-days" class="countdown-text">—</div>
+            <div class="countdown-label">days until deadline</div>
+          </div>
+        </div>
+        <div id="deadline-reminder" class="deadline-reminder">
+          ⏰ <strong>Heads up!</strong> Your assignment deadline is approaching. Consider prioritising high-impact tasks.
+        </div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <div>
+        <!-- Sprint Board -->
+        <section id="sprint-section">
+          <h2>Sprint & Agile Planner</h2>
+          <div class="sprint-board">
+            <div class="sprint-column todo" data-status="todo">
+              <h3>To Do</h3>
+              <div id="column-todo" class="column-tasks"></div>
+            </div>
+            <div class="sprint-column progress" data-status="in-progress">
+              <h3>In Progress</h3>
+              <div id="column-progress" class="column-tasks"></div>
+            </div>
+            <div class="sprint-column done" data-status="done">
+              <h3>Done</h3>
+              <div id="column-done" class="column-tasks"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Chat Section -->
+        <section id="chat-section">
+          <h2>AI Chat Summary Panel</h2>
+          <div class="chat-container">
+            <div class="chat-messages" id="chat-messages">
+              <div class="chat-message">
+                <div class="chat-avatar">A</div>
+                <div class="chat-content">
+                  <div class="chat-sender">Alex</div>
+                  <div class="chat-text">Hey team! I've finished the research section. Can someone review the methodology?</div>
+                  <div class="chat-time">2 hours ago</div>
+                </div>
+              </div>
+              <div class="chat-message">
+                <div class="chat-avatar">J</div>
+                <div class="chat-content">
+                  <div class="chat-sender">Jordan</div>
+                  <div class="chat-text">I'll take the methodology review. Also, we need to finalise the presentation slides by Friday.</div>
+                  <div class="chat-time">1 hour ago</div>
+                </div>
+              </div>
+              <div class="chat-message">
+                <div class="chat-avatar">S</div>
+                <div class="chat-content">
+                  <div class="chat-sender">Sam</div>
+                  <div class="chat-text">I've uploaded the draft slides to the shared folder. Let me know your feedback!</div>
+                  <div class="chat-time">45 mins ago</div>
+                </div>
+              </div>
+              <div class="chat-message">
+                <div class="chat-avatar">M</div>
+                <div class="chat-content">
+                  <div class="chat-sender">Morgan</div>
+                  <div class="chat-text">I'll handle the conclusion section. Reminder: group meeting tomorrow 2pm?</div>
+                  <div class="chat-time">30 mins ago</div>
+                </div>
+              </div>
+            </div>
+            <div class="chat-actions">
+              <button class="btn btn-primary" id="summarise-btn">Summarise Chat</button>
+            </div>
+            <div id="summary-panel" class="summary-panel">
+              <h4>📋 Chat Summary</h4>
+              <ul id="summary-list"></ul>
+              <div class="action-items">
+                <strong>🚩 Action Items (for Sprint Board):</strong>
+                <ul id="action-items-list"></ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div>
+        <!-- File Hosting -->
+        <section id="file-section">
+          <h2>File Hosting</h2>
+          <div class="file-section">
+            <div class="file-upload-zone" id="upload-zone">
+              <input type="file" id="file-input" multiple>
+              <div class="file-upload-icon">📁</div>
+              <div>Drop files here or click to upload</div>
+            </div>
+            <div class="file-list" id="file-list">
+              <div class="file-item">
+                <div class="file-info">
+                  <div class="file-icon">📄</div>
+                  <div class="file-details">
+                    <div class="file-name">Assignment_Draft_v2.pdf</div>
+                    <div class="file-meta">Alex • Mar 5, 2025</div>
+                  </div>
+                </div>
+              </div>
+              <div class="file-item">
+                <div class="file-info">
+                  <div class="file-icon">📊</div>
+                  <div class="file-details">
+                    <div class="file-name">Presentation_Slides.pptx</div>
+                    <div class="file-meta">Sam • Mar 6, 2025</div>
+                  </div>
+                </div>
+              </div>
+              <div class="file-item">
+                <div class="file-info">
+                  <div class="file-icon">📝</div>
+                  <div class="file-details">
+                    <div class="file-name">Research_Notes.docx</div>
+                    <div class="file-meta">Jordan • Mar 4, 2025</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Contribution Tracker -->
+        <section id="contribution-section">
+          <h2>Contribution Tracker</h2>
+          <div class="contribution-grid" id="contribution-grid"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============ CONFIG ============
+    const DEADLINE = new Date('2025-03-20T23:59:59');
+    const MEMBERS = ['Alex', 'Jordan', 'Sam', 'Morgan'];
+
+    const TASKS = [
+      { id: 't1', title: 'Research methodology', assignee: 'Alex', dueDate: '2025-03-10', status: 'done', boardStatus: 'done' },
+      { id: 't2', title: 'Write introduction', assignee: 'Jordan', dueDate: '2025-03-12', status: 'in-progress', boardStatus: 'in-progress' },
+      { id: 't3', title: 'Create presentation slides', assignee: 'Sam', dueDate: '2025-03-15', status: 'in-progress', boardStatus: 'in-progress' },
+      { id: 't4', title: 'Conclusion section', assignee: 'Morgan', dueDate: '2025-03-18', status: 'not-started', boardStatus: 'todo' },
+      { id: 't5', title: 'Final proofread', assignee: 'Alex', dueDate: '2025-03-19', status: 'not-started', boardStatus: 'todo' },
+      { id: 't6', title: 'Submit assignment', assignee: 'Jordan', dueDate: '2025-03-20', status: 'not-started', boardStatus: 'todo' },
+    ];
+
+    const FILES = [
+      { name: 'Assignment_Draft_v2.pdf', uploader: 'Alex', date: 'Mar 5, 2025' },
+      { name: 'Presentation_Slides.pptx', uploader: 'Sam', date: 'Mar 6, 2025' },
+      { name: 'Research_Notes.docx', uploader: 'Jordan', date: 'Mar 4, 2025' },
+    ];
+
+    const CHAT_SUMMARY = [
+      'Alex completed the research section and requested methodology review.',
+      'Jordan volunteered to review methodology and reminded team about Friday slides deadline.',
+      'Sam uploaded draft slides to shared folder and requested feedback.',
+      'Morgan will handle conclusion section and proposed meeting tomorrow 2pm.',
+    ];
+
+    const ACTION_ITEMS = [
+      'Review methodology (Jordan)',
+      'Finalise presentation slides by Friday (All)',
+      'Provide feedback on draft slides (Team)',
+      'Group meeting tomorrow 2pm (All)',
+    ];
+
+    // ============ DEADLINE VISUALISER ============
+    function getDaysRemaining() {
+      const now = new Date();
+      const diff = DEADLINE - now;
+      return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    }
+
+    function getUrgencyClass(days) {
+      if (days > 7) return 'green';
+      if (days >= 3) return 'yellow';
+      return 'red';
+    }
+
+    function updateDeadlineVisualiser() {
+      const days = getDaysRemaining();
+      const circumference = 2 * Math.PI * 45;
+      const maxDays = 14;
+      const percent = Math.min(100, (days / maxDays) * 100);
+      const offset = circumference - (percent / 100) * circumference;
+
+      document.getElementById('countdown-days').textContent = days;
+      const ring = document.getElementById('progress-ring-fill');
+      ring.className = 'progress-ring-fill ' + getUrgencyClass(days);
+      ring.style.strokeDashoffset = offset;
+
+      const reminder = document.getElementById('deadline-reminder');
+      if (days <= 7 && days > 0) {
+        reminder.classList.add('visible');
+      } else if (days === 0) {
+        reminder.innerHTML = '⚠️ <strong>Due today!</strong> Make sure everything is submitted.';
+        reminder.classList.add('visible');
+      } else {
+        reminder.classList.remove('visible');
+      }
+    }
+
+    // ============ PRIORITY SUGGESTION ============
+    function getSuggestedPriority(dueDate) {
+      const due = new Date(dueDate);
+      const now = new Date();
+      const daysLeft = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
+      if (daysLeft <= 3) return 'high';
+      if (daysLeft <= 7) return 'medium';
+      return 'low';
+    }
+
+    // ============ SPRINT BOARD ============
+    function renderSprintBoard() {
+      ['todo', 'progress', 'done'].forEach(status => {
+        const col = document.getElementById(`column-${status === 'todo' ? 'todo' : status === 'in-progress' ? 'progress' : 'done'}`);
+        col.innerHTML = '';
+        const colStatus = status === 'todo' ? 'todo' : status === 'in-progress' ? 'in-progress' : 'done';
+        TASKS.filter(t => t.boardStatus === colStatus).forEach(task => {
+          const priority = getSuggestedPriority(task.dueDate);
+          const card = document.createElement('div');
+          card.className = `task-card priority-${priority}`;
+          card.draggable = true;
+          card.dataset.taskId = task.id;
+          card.innerHTML = `
+            <div class="task-title">${task.title}</div>
+            <div class="task-meta">
+              <span>👤 ${task.assignee}</span>
+              <span>📅 ${task.dueDate}</span>
+            </div>
+            <span class="priority-badge ${priority}">${priority} priority</span>
+          `;
+          card.addEventListener('click', (e) => {
+            if (e.target.closest('.task-card')) {
+              card.classList.add('just-clicked');
+              cycleTaskStatus(task.id);
+            }
+          });
+          card.addEventListener('dragstart', handleDragStart);
+          card.addEventListener('dragend', handleDragEnd);
+          card.classList.add('animate-in');
+          col.appendChild(card);
+        });
+      });
+    }
+
+    function cycleTaskStatus(taskId) {
+      const task = TASKS.find(t => t.id === taskId);
+      if (!task) return;
+      const order = ['todo', 'in-progress', 'done'];
+      const idx = order.indexOf(task.boardStatus);
+      task.boardStatus = order[(idx + 1) % 3];
+      task.status = task.boardStatus === 'todo' ? 'not-started' : task.boardStatus === 'in-progress' ? 'in-progress' : 'completed';
+      renderSprintBoard();
+      renderContributionTracker();
+    }
+
+    function handleDragStart(e) {
+      e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
+      e.target.classList.add('dragging');
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+      document.querySelectorAll('.sprint-column').forEach(c => c.classList.remove('drag-over'));
+    }
+
+    document.querySelectorAll('.sprint-column').forEach(col => {
+      col.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        col.classList.add('drag-over');
+      });
+      col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+      col.addEventListener('drop', (e) => {
+        e.preventDefault();
+        col.classList.remove('drag-over');
+        const taskId = e.dataTransfer.getData('text/plain');
+        const task = TASKS.find(t => t.id === taskId);
+        if (task) {
+          task.boardStatus = col.dataset.status;
+          task.status = task.boardStatus === 'todo' ? 'not-started' : task.boardStatus === 'in-progress' ? 'in-progress' : 'completed';
+          renderSprintBoard();
+          renderContributionTracker();
+        }
+      });
+    });
+
+    // ============ CHAT SUMMARY ============
+    document.getElementById('summarise-btn').addEventListener('click', () => {
+      const panel = document.getElementById('summary-panel');
+      const list = document.getElementById('summary-list');
+      const actionList = document.getElementById('action-items-list');
+      list.innerHTML = CHAT_SUMMARY.map(s => `<li>${s}</li>`).join('');
+      actionList.innerHTML = ACTION_ITEMS.map(a => `<li>${a}</li>`).join('');
+      panel.classList.add('visible');
+    });
+
+    // ============ FILE UPLOAD ============
+    const uploadZone = document.getElementById('upload-zone');
+    const fileInput = document.getElementById('file-input');
+    const fileListEl = document.getElementById('file-list');
+
+    uploadZone.addEventListener('click', () => fileInput.click());
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('drag-over');
+    });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-over');
+      handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+    function handleFiles(files) {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+      Array.from(files).forEach(file => {
+        FILES.unshift({ name: file.name, uploader: 'You', date: dateStr });
+      });
+      renderFileList();
+    }
+
+    function renderFileList() {
+      fileListEl.innerHTML = FILES.map(f => `
+        <div class="file-item">
+          <div class="file-info">
+            <div class="file-icon">📄</div>
+            <div class="file-details">
+              <div class="file-name">${f.name}</div>
+              <div class="file-meta">${f.uploader} • ${f.date}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ============ CONTRIBUTION TRACKER ============
+    function renderContributionTracker() {
+      const grid = document.getElementById('contribution-grid');
+      grid.innerHTML = MEMBERS.map(member => {
+        const memberTasks = TASKS.filter(t => t.assignee === member);
+        const completed = memberTasks.filter(t => t.status === 'completed').length;
+        const total = memberTasks.length;
+        const pct = total ? Math.round((completed / total) * 100) : 0;
+
+        const tasksHtml = memberTasks.map(t => {
+          const statusClass = t.status === 'completed' ? 'completed' : t.status === 'in-progress' ? 'in-progress' : 'not-started';
+          const statusLabel = t.status === 'completed' ? 'Completed' : t.status === 'in-progress' ? 'In Progress' : 'Not Started';
+          return `
+            <div class="member-task" data-task-id="${t.id}">
+              <span class="status-dot ${statusClass}"></span>
+              <span class="task-name">${t.title}</span>
+              <span class="status-label">${statusLabel}</span>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="member-card">
+            <div class="member-header">
+              <span class="member-name">${member}</span>
+              <span style="font-size:0.85rem;color:var(--text-secondary)">${completed}/${total} done</span>
+            </div>
+            <div class="member-progress-bar">
+              <div class="member-progress-fill" style="width:${pct}%"></div>
+            </div>
+            <div class="member-tasks">${tasksHtml}</div>
+          </div>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('.member-task').forEach(el => {
+        el.addEventListener('click', () => {
+          cycleTaskStatus(el.dataset.taskId);
+        });
+      });
+    }
+
+    // ============ INIT ============
+    updateDeadlineVisualiser();
+    setInterval(updateDeadlineVisualiser, 60000);
+    renderSprintBoard();
+    renderContributionTracker();
+  </script>
+</body>
+</html>
